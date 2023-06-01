@@ -4,9 +4,13 @@ const config = require('./utils/config');
 
 // Import express as a function to create express application stored in app variable
 const express = require('express');
+
+// This library allows us to eliminate the need for catch blocks in all the controllers
+require('express-async-errors');
 const app = express();
 
 const usersRouter = require('./controllers/users');
+const postsRouter = require('./controllers/posts');
 const middleware = require('./utils/middleware');
 const logger = require('./utils/logger');
 const mongoose = require('mongoose');
@@ -30,6 +34,7 @@ app.use(middleware.requestLogger);
 
 // The Router middleware defines related routes in a single place. The route here is '/api/users'. Whenever route matching 'api/users' will be called, it will be handled in the users.js of controllers file.
 app.use('/api/users', usersRouter);
+app.use('/api/posts', postsRouter);
 
 app.use(middleware.unknownEndpoint);
 app.use(middleware.errorHandler);
