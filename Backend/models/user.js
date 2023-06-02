@@ -1,5 +1,8 @@
 const mongoose = require('mongoose');
 
+// This library allows us to add the unique key to ensure no two users have the same username
+const uniqueValidator = require('mongoose-unique-validator');
+
 // Defined the schema for a user and stored it in userSchema. The schema tells Mongoose how the user objects are to be stored in the database.
 const userSchema = new mongoose.Schema({
   // We can add validation rules here. We can also use Mongoose custom validator to create new validations.
@@ -7,6 +10,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     minLength: 3,
     required: true,
+    unique: true,
   },
   email: {
     type: String,
@@ -46,7 +50,15 @@ const userSchema = new mongoose.Schema({
     type: Date,
     default: new Date(),
   },
+  posts: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Post',
+    },
+  ],
 });
+
+userSchema.plugin(uniqueValidator);
 
 // By default when we retrieve the user objects from Mongo, the _v property is also retrieved which is unwanted. All instances of a model will have the toJSON method. We use the set method and the transform funcction to change how the toJSON method works.
 // Additionally we have also trasnsformed the 'id' object to a string.
@@ -55,6 +67,7 @@ userSchema.set('toJSON', {
     returnedObject.id = returnedObject._id.toString();
     delete returnedObject._id;
     delete returnedObject.__v;
+    delete returnedObject.password;
   },
 });
 

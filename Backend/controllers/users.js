@@ -1,3 +1,6 @@
+// This library is for user authorization (Password)
+const bcrypt = require('bcrypt');
+
 //A router object is an isolated instance of middleware and routes. You can think of it as a “mini-application,” capable only of performing middleware and routing functions. Every Express application has a built-in app router.
 const usersRouter = require('express').Router();
 
@@ -7,7 +10,7 @@ const User = require('../models/user');
 // Here we fetch the saved 'user' objects from the database. The parameter of the find method are the search conditions. Here we want to retrieve all the users and hence the parameter is left empty {}.
 // Note that the route parameter here is just '/'. This is because if we see the index.js file, '/api/users' is already added as a parameter when calling the usersRouters.
 usersRouter.get('/', async (req, res) => {
-  const users = await User.find({});
+  const users = await User.find({}).populate('posts', { image: 1, caption: 1 });
   if (!users.length) {
     return res.status(404).json({ message: 'No users' });
   }
@@ -35,13 +38,17 @@ usersRouter.get('/:userId', async (req, res) => {
 // Route for posting a new user.
 usersRouter.post('/', async (req, res) => {
   // For details on how the body property gets the data to be posted read about json parser part.
-  const body = req.body;
+  const { username, email, password } = req.body;
+
+  // We do not want to save the password directly to the database. Hence we use brypt library to create a hash of the password which is then stored to the dB
+  const saltRounds = 10;
+  const passwordHash = await bcrypt.hash(password, saltRounds);
 
   // Now we create a new user object using the imported User model(the model can also be said to be a constructor function).
   const user = new User({
-    username: body.username,
-    email: body.email,
-    password: body.password,
+    username: username,
+    email: email,
+    password: passwordHash,
   });
 
   // Finally we save the user object to the database using the save method.

@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
 
 const supertest = require('supertest');
 const helper = require('./test_helper');
@@ -10,12 +11,37 @@ const app = require('../app');
 const api = supertest(app);
 const User = require('../models/user');
 
-// Before each test all existing users in the DB are deleted, and 2 summy users are added to DB
+// Before each test all existing users in the DB are deleted, and 2 dummy users are added to DB
 beforeEach(async () => {
   await User.deleteMany({});
-  const userObjects = helper.initialUsers.map((user) => new User(user));
-  const promiseArray = userObjects.map((user) => user.save());
-  await Promise.all(promiseArray);
+
+  const userOne = {
+    username: 'john_doe',
+    email: 'john@example.com',
+    password: 'password123',
+    name: 'John Doe',
+  };
+  const passwordHashOne = await bcrypt.hash(userOne.password, 10);
+  const userOneObject = new User({ ...userOne, password: passwordHashOne });
+  await userOneObject.save();
+
+  const userTwo = {
+    username: 'jane_smith',
+    email: 'jane@example.com',
+    password: 'password456',
+    name: 'Jane Smith',
+  };
+  const passwordHashTwo = await bcrypt.hash(userTwo.password, 10);
+  const userTwoObject = new User({ ...userTwo, password: passwordHashTwo });
+  await userTwoObject.save();
+
+  // const userObjects = helper.initialUsers.map(async (user) => {
+  //   const passwordHash = await bcrypt.hash(user.password, 10);
+  //   return new User({ ...user, password: passwordHash });
+  // });
+
+  // const promiseArray = userObjects.map((user) => user.save());
+  // await Promise.all(promiseArray);
 });
 
 // When trying to retrieve users and no existing users in the DB, receive 404 error
@@ -26,8 +52,10 @@ test('no users in database, receive error 404', async () => {
 
 // All the existing users are retrieved from the DB.
 test('all existing users are returned', async () => {
+  const usersAtStart = await helper.usersInDb();
+
   const users = await api.get('/api/users').expect(200);
-  expect(users.body).toHaveLength(helper.initialUsers.length);
+  expect(users.body).toHaveLength(usersAtStart.length);
 });
 
 // A specific user can be retrieved from the DB given a valid id.
@@ -53,6 +81,8 @@ test('a user cannot be retrieved if id is malformatted', async () => {
 
 // A user can be added to the DB
 test('a valid user can be added', async () => {
+  const usersAtStart = await helper.usersInDb();
+
   const newUser = new User({
     username: 'dGlover',
     email: 'danny@gmail.com',
@@ -62,12 +92,15 @@ test('a valid user can be added', async () => {
   await api.post('/api/users').send(newUser.toJSON()).expect(201);
 
   const usersAtEnd = await helper.usersInDb();
-  expect(usersAtEnd).toHaveLength(helper.initialUsers.length + 1);
+  expect(usersAtEnd).toHaveLength(usersAtStart.length + 1);
   const usernames = usersAtEnd.map((user) => user.username);
   expect(usernames).toContain(newUser.username);
 });
 
 test('a user without username cannot be added - throws user validation error', async () => {
+  const usersAtStart = await helper.usersInDb();
+  console.log(usersAtStart);
+
   const newUser = new User({
     email: 'danny@gmail.com',
     password: 'danny123',
@@ -80,7 +113,7 @@ test('a user without username cannot be added - throws user validation error', a
 
   const usersAtEnd = await helper.usersInDb();
 
-  expect(usersAtEnd).toHaveLength(helper.initialUsers.length);
+  expect(usersAtEnd).toHaveLength(usersAtStart.length);
   const usernames = usersAtEnd.map((user) => user.username);
   expect(usernames).not.toContain(newUser.username);
 });

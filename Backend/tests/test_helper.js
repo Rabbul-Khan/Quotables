@@ -1,19 +1,20 @@
 const User = require('../models/user');
+const Post = require('../models/post');
 
-const initialUsers = [
-  {
-    username: 'john_doe',
-    email: 'john@example.com',
-    password: 'password123',
-    name: 'John Doe',
-  },
-  {
-    username: 'jane_smith',
-    email: 'jane@example.com',
-    password: 'password456',
-    name: 'Jane Smith',
-  },
-];
+// const initialUsers = [
+//   {
+//     username: 'john_doe',
+//     email: 'john@example.com',
+//     password: 'password123',
+//     name: 'John Doe',
+//   },
+//   {
+//     username: 'jane_smith',
+//     email: 'jane@example.com',
+//     password: 'password456',
+//     name: 'Jane Smith',
+//   },
+// ];
 
 const nonExistingId = async () => {
   const user = new User({
@@ -33,8 +34,14 @@ const usersInDb = async () => {
   return users.map((user) => user.toJSON());
 };
 
+const postsInDb = async () => {
+  const posts = await Post.find({});
+  return posts.map((post) => post.toJSON());
+};
+
 module.exports = {
-  initialUsers,
+  // initialUsers,
   nonExistingId,
   usersInDb,
+  postsInDb,
 };
