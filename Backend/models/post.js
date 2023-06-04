@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
 const postSchema = new mongoose.Schema({
+  // Is userId a better name for this prop?
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',

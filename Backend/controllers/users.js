@@ -1,32 +1,27 @@
-// This library is for user authorization (Password)
+// We do not want to store the password directly to the database. Hence we create a password hash from the actual password using the bcrypt library.
 const bcrypt = require('bcrypt');
 
-//A router object is an isolated instance of middleware and routes. You can think of it as a “mini-application,” capable only of performing middleware and routing functions. Every Express application has a built-in app router.
+//A router object is an isolated instance of middleware and routes. We can think of it as a “mini-application,” capable only of performing middleware and routing functions. Every Express application has a built-in app router.
 const usersRouter = require('express').Router();
 
 const User = require('../models/user');
+const Post = require('../models/post');
 
-// A route for fetching all the users
-// Here we fetch the saved 'user' objects from the database. The parameter of the find method are the search conditions. Here we want to retrieve all the users and hence the parameter is left empty {}.
-// Note that the route parameter here is just '/'. This is because if we see the index.js file, '/api/users' is already added as a parameter when calling the usersRouters.
+// Route for fetching all the users
+// Here we fetch all the saved 'user' objects from the database. The parameter of the find method are the search conditions. In this case, we want to retrieve all the users and hence the parameter is left empty {}.
+// Note that the route parameter here is just '/'. This is because if we see the index.js file, the '/api/users' part is already added as a parameter when calling the usersRouters.
 usersRouter.get('/', async (req, res) => {
+  // The populate method of Mongoose acts as a join query.
+  // In this case, 'posts' is the parameter given to populate. It will find all the post objects referenced by the ids existing in the posts array of the user.
+  // The populate method takes an additional parameter here - { image: 1, caption: 1 }. With this parameter we have stated we want only the image, and caption fields to be returned.
   const users = await User.find({}).populate('posts', { image: 1, caption: 1 });
   if (!users.length) {
-    return res.status(404).json({ message: 'No users' });
+    return res.status(404).json({ message: 'No users exist' });
   }
   return res.json(users);
 });
 
-//   // The express-async-errors library allows us to eliminate the need for try - catch blocks in all the controllers
-//   catch (error) {
-//     // We have impemented our own errorHandler middleware here. Look in middleware.js.
-//     // next function will be required as a parameter in addition to req and res
-//     //  If next was called without a parameter, then execution would move to next route or middleware. Since next has a parameter execution will continur to errorHandler middleware
-//     next(error);
-//   }
-// });
-
-// A route for fetching a single user.
+// Route for fetching a single user with a given id.
 usersRouter.get('/:userId', async (req, res) => {
   const user = await User.findById(req.params.userId);
   if (!user) {
@@ -35,10 +30,27 @@ usersRouter.get('/:userId', async (req, res) => {
   return res.json(user);
 });
 
-// Route for posting a new user.
+// Route for registering a new user.
 usersRouter.post('/', async (req, res) => {
-  // For details on how the body property gets the data to be posted read about json parser part.
+  // The body property gets the data to be posted by making use of json parser added in app.js.
   const { username, email, password } = req.body;
+
+  if (password.length < 5) {
+    res
+      .status(403)
+      .json({ error: 'Password should be longer than 5 characters' });
+  }
+
+  if (!/\d/.test(password)) {
+    res.status(403).json({ error: 'Password should have atleast one number' });
+  }
+
+  const specialChars = /[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
+  if (!specialChars.test(password)) {
+    res
+      .status(403)
+      .json({ error: 'Password should have atleast one special character' });
+  }
 
   // We do not want to save the password directly to the database. Hence we use brypt library to create a hash of the password which is then stored to the dB
   const saltRounds = 10;
@@ -56,54 +68,66 @@ usersRouter.post('/', async (req, res) => {
   return res.status(201).json(user);
 });
 
-// Route for deleteing a user with a given id
+// This does not work - might be an authentication issue.
+// Route for deleteing a user with a given id.
 usersRouter.delete('/:userId', async (req, res) => {
-  const user = await User.findByIdAndRemove(req.params.userId);
+  const user = await User.findById(req.params.userId);
+  console.log(user);
   if (!user) {
-    return res.status(204).json({ message: 'No user found' });
-  }
-  return res.status(204).json({ message: 'User deleted' });
-});
-
-// Route to handle a user following another user
-usersRouter.post('/:userId/follow/:targetId', async (req, res) => {
-  const user = await User.findById(req.params.userId);
-  const targetUser = await User.findById(req.params.targetId);
-
-  if (!user || !targetUser) {
     return res.status(404).json({ message: 'No user found' });
   }
 
-  user.following = user.following.concat(targetUser.id);
-  targetUser.followers = targetUser.followers.concat(user.id);
-
-  await user.save();
-  await targetUser.save();
-
-  return res.json({ message: 'User followed successfully' });
-});
-
-usersRouter.post('/:userId/unfollow/:targetId', async (req, res) => {
-  const user = await User.findById(req.params.userId);
-  const targetUser = await User.findById(req.params.targetId);
-
-  if (!user || !targetUser) {
-    return res.status(404).json({ message: 'No user found' });
+  if (user.posts.length !== 0) {
+    user.posts.forEach((post) => {
+      Post.findByIdAndDelete(post.id.toString());
+    });
   }
-
-  user.following = user.following.filter((id) => {
-    return id !== targetUser.id;
-  });
-
-  targetUser.followers = targetUser.followers.filter((id) => {
-    return id !== user.id;
-  });
-
-  await user.save();
-  await targetUser.save();
-
-  return res.json({ message: 'User unfollowed successfully' });
+  await User.findByIdAndDelete(req.params.userId);
+  return res.status(204);
 });
+
+// Will implement this functionality later.
+
+// // Route to handle a user following an unfollowed user
+// usersRouter.post('/:userId/follow/:targetId', async (req, res) => {
+//   const user = await User.findById(req.params.userId);
+//   const targetUser = await User.findById(req.params.targetId);
+
+//   if (!user || !targetUser) {
+//     return res.status(404).json({ message: 'No user found' });
+//   }
+
+//   user.following = user.following.concat(targetUser.id);
+//   targetUser.followers = targetUser.followers.concat(user.id);
+
+//   await user.save();
+//   await targetUser.save();
+
+//   return res.json({ message: 'User followed successfully' });
+// });
+
+// // Route to handle a user unfollowing a followed user
+// usersRouter.post('/:userId/unfollow/:targetId', async (req, res) => {
+//   const user = await User.findById(req.params.userId);
+//   const targetUser = await User.findById(req.params.targetId);
+
+//   if (!user || !targetUser) {
+//     return res.status(404).json({ message: 'No user found' });
+//   }
+
+//   user.following = user.following.filter((id) => {
+//     return id !== targetUser.id;
+//   });
+
+//   targetUser.followers = targetUser.followers.filter((id) => {
+//     return id !== user.id;
+//   });
+
+//   await user.save();
+//   await targetUser.save();
+
+//   return res.json({ message: 'User unfollowed successfully' });
+// });
 
 // The module exports the router to be available for all consumers of the module.
 module.exports = usersRouter;

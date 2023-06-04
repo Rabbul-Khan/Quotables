@@ -1,21 +1,7 @@
 const User = require('../models/user');
 const Post = require('../models/post');
 
-// const initialUsers = [
-//   {
-//     username: 'john_doe',
-//     email: 'john@example.com',
-//     password: 'password123',
-//     name: 'John Doe',
-//   },
-//   {
-//     username: 'jane_smith',
-//     email: 'jane@example.com',
-//     password: 'password456',
-//     name: 'Jane Smith',
-//   },
-// ];
-
+// Generate an id that does not have a user.
 const nonExistingId = async () => {
   const user = new User({
     username: 'will remove',
@@ -29,18 +15,19 @@ const nonExistingId = async () => {
   return user._id.toString();
 };
 
+// Return all the users from the dB.
 const usersInDb = async () => {
   const users = await User.find({});
   return users.map((user) => user.toJSON());
 };
 
+// Return all the posts from the dB.
 const postsInDb = async () => {
   const posts = await Post.find({});
   return posts.map((post) => post.toJSON());
 };
 
 module.exports = {
-  // initialUsers,
   nonExistingId,
   usersInDb,
   postsInDb,

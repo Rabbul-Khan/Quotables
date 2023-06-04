@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const config = require('../utils/config');
 
 const supertest = require('supertest');
 const helper = require('./test_helper');
@@ -10,6 +12,8 @@ const api = supertest(app);
 const User = require('../models/user');
 const Post = require('../models/post');
 
+let token = '';
+
 beforeEach(async () => {
   await Post.deleteMany({});
   await User.deleteMany({});
@@ -17,7 +21,7 @@ beforeEach(async () => {
   const userOne = {
     username: 'john_doe',
     email: 'john@example.com',
-    password: 'password123',
+    password: 'pass123@',
     name: 'John Doe',
   };
   const passwordHashOne = await bcrypt.hash(userOne.password, 10);
@@ -26,25 +30,39 @@ beforeEach(async () => {
 
   const user = await User.find({ username: 'john_doe' });
 
+  const userForToken = {
+    username: user[0].username,
+    id: user[0]._id,
+  };
+
+  token = jwt.sign(userForToken, config.SECRET, {
+    expiresIn: 60 * 60,
+  });
+
   const postOne = new Post({
-    userId: user[0]._id,
+    user: user[0]._id,
     image: 'www.someImage.com',
     caption: 'Beautiful picture',
   });
   await postOne.save();
+  user[0].posts = user[0].posts.concat(postOne._id);
+  await user[0].save();
 });
 
 // When trying to retrieve posts and no existing posts in the DB, receive 404 error
 test('no posts in database, receive error 404', async () => {
   await Post.deleteMany({});
-  await api.get('/api/posts').expect(404);
+  const response = await api.get('/api/posts');
+  expect(response.status).toBe(404);
+  expect(response.body.message).toContain('No posts');
 });
 
 // All the existing posts are retrieved from the DB.
 test('all existing posts are returned', async () => {
   const postsAtStart = await helper.postsInDb();
 
-  const posts = await api.get('/api/posts').expect(200);
+  const posts = await api.get('/api/posts');
+  expect(posts.status).toBe(200);
   expect(posts.body).toHaveLength(postsAtStart.length);
 });
 
@@ -64,13 +82,17 @@ test('a new post can be posted', async () => {
 
   const user = await User.find({ username: 'john_doe' });
 
-  const newPost = new Post({
+  const newPost = {
     userId: user[0]._id,
     image: 'www.anotherImage.com',
     caption: 'New picture',
-  });
+  };
 
-  await api.post('/api/posts').send(newPost.toJSON()).expect(201);
+  await api
+    .post('/api/posts')
+    .set('authorization', `bearer ${token}`)
+    .send(newPost)
+    .expect(201);
 
   const postsAtEnd = await helper.postsInDb();
   expect(postsAtEnd).toHaveLength(postsAtStart.length + 1);
@@ -78,11 +100,15 @@ test('a new post can be posted', async () => {
   expect(captions[1]).toContain(newPost.caption);
 });
 
+// Deleteing a specific post.
 test('a specific post can be deleted', async () => {
   const postsAtStart = await helper.postsInDb();
   const postToDelete = postsAtStart[0];
 
-  await api.delete(`/api/posts/${postToDelete.id}`).expect(204);
+  await await api
+    .delete(`/api/posts/${postToDelete.id}`)
+    .set('authorization', `bearer ${token}`)
+    .expect(204);
 
   const postsAtEnd = await helper.postsInDb();
   expect(postsAtEnd.length).toBe(0);

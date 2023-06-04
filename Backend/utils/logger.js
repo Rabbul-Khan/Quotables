@@ -2,6 +2,7 @@
 
 // For printing normal log messages
 const info = (...params) => {
+  // If we are testing, we prevent the log messages from printing to the console.
   if (process.env.NODE_ENV !== 'test') {
     console.log(...params);
   }

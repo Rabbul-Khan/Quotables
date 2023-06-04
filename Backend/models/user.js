@@ -18,7 +18,6 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: true,
   },
   name: {
     type: String,
@@ -33,7 +32,13 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: '',
   },
-  // Notice this is an array of user IDs referring to users
+  // Notice this is an array of post IDs referring to posts.
+  posts: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Post',
+    },
+  ],
   followers: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -50,17 +55,11 @@ const userSchema = new mongoose.Schema({
     type: Date,
     default: new Date(),
   },
-  posts: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Post',
-    },
-  ],
 });
 
 userSchema.plugin(uniqueValidator);
 
-// By default when we retrieve the user objects from Mongo, the _v property is also retrieved which is unwanted. All instances of a model will have the toJSON method. We use the set method and the transform funcction to change how the toJSON method works.
+// By default when we retrieve the user objects from Mongo, the _v property is also retrieved which is unwanted. All instances of a model will have the toJSON method. We use the set method and the transform function to change how the toJSON method works.
 // Additionally we have also trasnsformed the 'id' object to a string.
 userSchema.set('toJSON', {
   transform: (document, returnedObject) => {
