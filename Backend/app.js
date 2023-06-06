@@ -10,6 +10,8 @@ const express = require('express');
 require('express-async-errors');
 const app = express();
 
+const cors = require('cors');
+
 const usersRouter = require('./controllers/users');
 const postsRouter = require('./controllers/posts');
 const loginRouter = require('./controllers/login');
@@ -32,6 +34,8 @@ mongoose
 
 // For a POST request, we want the data to be posted to be sent in the body of the request in JSON format. We use the express.json parser to accomplish this. The parser takes the JSON data of a request, transforms it into a JS object and then assigns it to the request object as a new property, body, before the route handler is called. If we do not use the parser, the body property would remain undefined.
 app.use(express.json());
+app.use(cors());
+app.use(express.static('dist'));
 
 app.use(middleware.requestLogger);
 app.use(middleware.tokenExtractor);

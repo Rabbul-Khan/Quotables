@@ -70,21 +70,21 @@ usersRouter.post('/', async (req, res) => {
 
 // This does not work - might be an authentication issue.
 // Route for deleteing a user with a given id.
-usersRouter.delete('/:userId', async (req, res) => {
-  const user = await User.findById(req.params.userId);
-  console.log(user);
-  if (!user) {
-    return res.status(404).json({ message: 'No user found' });
-  }
+// usersRouter.delete('/:userId', async (req, res) => {
+//   const user = await User.findById(req.params.userId);
+//   console.log(user);
+//   if (!user) {
+//     return res.status(404).json({ message: 'No user found' });
+//   }
 
-  if (user.posts.length !== 0) {
-    user.posts.forEach((post) => {
-      Post.findByIdAndDelete(post.id.toString());
-    });
-  }
-  await User.findByIdAndDelete(req.params.userId);
-  return res.status(204);
-});
+//   if (user.posts.length !== 0) {
+//     user.posts.forEach((post) => {
+//       Post.findByIdAndDelete(post.id.toString());
+//     });
+//   }
+//   await User.findByIdAndDelete(req.params.userId);
+//   return res.status(204);
+// });
 
 // Will implement this functionality later.
 
