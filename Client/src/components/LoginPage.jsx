@@ -1,27 +1,49 @@
-import logo from '../assets/Instagram-Logo.svg';
-import { LoginForm } from './LoginForm';
+import { useState } from 'react';
+import girlLaptop from '../assets/Girl_laptop.svg';
+import girlLaptopSky from '../assets/Girl_laptop_sky.svg';
+import LoginForm from './LoginForm';
 
-export const LoginPage = () => {
+const LoginPage = ({ setUser, setSignup }) => {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   return (
-    <>
-      <img src={logo} />
-      <LoginForm />
-      <p className="mb-5 flex items-center justify-center">OR</p>
-      <a
-        href="#"
-        className="mb-4 flex items-center justify-center text-blue-900"
-      >
-        Login in with Facebook
-      </a>
-      <a className="mb-8 flex items-center justify-center text-blue-700">
-        Forgot Password?
-      </a>
-      <p className="flex items-center justify-center">
-        Don't have an account?
-        <a className="flex items-center justify-center font-semibold text-blue-400">
-          Sign up
+    <div className="py-22 flex h-screen w-full flex-col items-center justify-center bg-gray-300 md:flex-row md:gap-12">
+      <div className=" invisible w-0 md:visible md:flex md:w-full md:justify-end">
+        <img src={girlLaptopSky} className=" w-4/5 max-w-sm" />
+      </div>
+
+      <div className="w-full md:justify-self-start">
+        <a href="#">
+          {/* md:block to remove the flex centering  */}
+          <h1 className="mb-14 flex justify-center text-6xl font-bold text-slate-700 transition-transform hover:text-indigo-600 active:scale-95 md:mb-8 md:block">
+            Quotables
+          </h1>
         </a>
-      </p>
-    </>
+
+        <LoginForm
+          username={username}
+          password={password}
+          setUsername={setUsername}
+          setPassword={setPassword}
+          setUser={setUser}
+        />
+
+        <p className="mb-14 mt-4 flex items-center justify-center md:mb-0 md:ml-5 md:justify-start">
+          Don't have an account?
+          <a
+            href="#"
+            className="ml-1 flex items-center justify-center font-semibold text-indigo-600 hover:scale-105 hover:text-blue-700 hover:underline"
+            onClick={() => {
+              setSignup(true);
+            }}
+          >
+            Sign up
+          </a>
+        </p>
+        <img src={girlLaptop} className="m-auto w-4/5 max-w-xs md:hidden" />
+      </div>
+    </div>
   );
 };
+
+export default LoginPage;

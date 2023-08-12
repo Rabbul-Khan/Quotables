@@ -6,30 +6,34 @@ const postSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
   },
-  image: {
-    type: String,
-    required: true,
-  },
-  caption: {
+  content: {
     type: String,
     maxLength: 1000,
+    required: true,
   },
-  likes: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-    },
-  ],
-  comments: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Comment',
-    },
-  ],
   createdAt: {
-    type: Date,
-    default: Date.now,
+    type: String,
+    default: new Date().toLocaleString(undefined, { timeZone: 'Asia/Dhaka' }),
   },
+
+  // These features will be added later.
+
+  // image: {
+  //   type: String,
+  //   required: true,
+  // },
+  // likes: [
+  //   {
+  //     type: mongoose.Schema.Types.ObjectId,
+  //     ref: 'Likes',
+  //   },
+  // ],
+  // comments: [
+  //   {
+  //     type: mongoose.Schema.Types.ObjectId,
+  //     ref: 'Comment',
+  //   },
+  // ],
 });
 
 postSchema.set('toJSON', {

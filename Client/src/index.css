@@ -1,4 +1,6 @@
 @tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 @layer base {
   input:focus,
@@ -9,5 +11,12 @@
   }
 }
 
-@tailwind components;
-@tailwind utilities;
+@layer base {
+  html {
+    /* font-family: Cormorant Garamond, Baskerville, Baskerville Old Face,
+      Hoefler Text, Times New Roman, serif; */
+    font-family: Courier Prime, Courier, Lucida Sans Typewriter,
+      Lucida Typewriter, monospace;
+    /* font-size: calc(15px + 0.390625vw); */
+  }
+}

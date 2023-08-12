@@ -1,16 +1,22 @@
-import loginService from '../services/loginService';
+import signupService from '../services/signupService';
 import postService from '../services/postService';
+import loginService from '../services/loginService';
 
-const LoginForm = ({
+const SignupForm = ({
   setUsername,
   setPassword,
   setUser,
   username,
   password,
+  setSignup,
 }) => {
-  const handleLogin = async (event) => {
+  const handleSignup = async (event) => {
     event.preventDefault();
     try {
+      await signupService.signup({
+        username,
+        password,
+      });
       const user = await loginService.login({
         username,
         password,
@@ -22,6 +28,7 @@ const LoginForm = ({
       postService.setToken(user.data.token);
       setUsername('');
       setPassword('');
+      setSignup(false);
     } catch (exception) {
       return exception;
     }
@@ -29,28 +36,26 @@ const LoginForm = ({
 
   return (
     <form
-      onSubmit={handleLogin}
-      className="m-auto flex w-3/5 min-w-max max-w-xs flex-col items-center justify-center md:m-0 md:w-full"
+      onSubmit={handleSignup}
+      className="m-auto flex w-60 flex-col items-center justify-center"
     >
       <input
         value={username}
         onChange={({ target }) => setUsername(target.value)}
-        placeholder="Email, or username"
+        placeholder="Phone, email, or username"
         type="text"
-        className="input mb-3 w-full bg-gray-100 tracking-wide focus:bg-indigo-50 focus:outline-indigo-400"
+        className="input mb-2 w-full max-w-xs bg-gray-100 "
       />
       <input
         value={password}
         onChange={({ target }) => setPassword(target.value)}
         placeholder="Password"
         type="password"
-        className="input mb-3 w-full bg-gray-100 tracking-wide focus:bg-indigo-50 focus:outline-indigo-400"
+        className="input mb-2 w-full max-w-xs bg-gray-100 "
       />
-      <button className="btn-primary btn-block btn font-bold tracking-widest">
-        Log in
-      </button>
+      <button className="btn-primary btn-block btn mb-3">Signup</button>
     </form>
   );
 };
 
-export default LoginForm;
+export default SignupForm;

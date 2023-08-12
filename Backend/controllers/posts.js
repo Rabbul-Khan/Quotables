@@ -17,7 +17,9 @@ postsRouter.get('/', async (req, res) => {
 
 // Route for fetching a single post with given id.
 postsRouter.get('/:postId', async (req, res) => {
-  const post = await Post.findById(req.params.postId);
+  const post = await Post.findById(req.params.postId).populate('user', {
+    username: 1,
+  });
   if (!post) {
     return res.status(404).json({ message: 'No post found' });
   }
@@ -28,7 +30,7 @@ postsRouter.get('/:postId', async (req, res) => {
 postsRouter.post('/', userExtractor, async (req, res) => {
   const body = req.body;
 
-  // Here we use the verify method to ensure that a valid user is attempting to make a post. If the verification is successful, it returns the username and id of the user
+  // Here we use the verify method to ensure that a valid user is attempting to make a post. If the verification is successful, it returns the username and id of the user.
   const decodedToken = jwt.verify(req.token, config.SECRET);
   if (!decodedToken.id) {
     return res.status(401).json({ error: 'invalid token' });
@@ -38,15 +40,23 @@ postsRouter.post('/', userExtractor, async (req, res) => {
 
   const post = new Post({
     user: user.id,
-    image: body.image,
-    caption: body.caption,
-    createdAt: body.createdAt,
+    content: body.content,
   });
 
   const savedPost = await post.save();
+  console.log(savedPost);
+
+  const dataToSend = {
+    content: body.content,
+    id: savedPost.id,
+    username: user.username,
+    date: savedPost.createdAt,
+  };
+
   user.posts = user.posts.concat(savedPost._id);
   await user.save();
-  return res.status(201).json(savedPost);
+  console.log('saved Post', savedPost);
+  return res.status(201).send(dataToSend);
 });
 
 // Route for deleteing a post with a given id.
@@ -73,7 +83,8 @@ postsRouter.delete('/:postId', userExtractor, async (req, res) => {
 
   // NEED TO TEST THIS FUNCTIONALITY WORKS OR NOT. COULD HAVE BUGs.
   const user = await User.findById(post.user.toString());
-  user.posts.filter((post) => {
+  console.log(user.posts);
+  user.posts = user.posts.filter((post) => {
     return post.toString() !== req.params.postId;
   });
 

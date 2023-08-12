@@ -12,49 +12,53 @@ const userSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
-  email: {
-    type: String,
-    required: [true, 'Please enter Email address'],
-  },
   password: {
     type: String,
   },
-  name: {
-    type: String,
-    default: '',
-  },
-  profilePicture: {
-    type: String,
-    default:
-      'https://images.unsplash.com/photo-1551373884-8a0750074df7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80',
-  },
-  bio: {
-    type: String,
-    default: '',
-  },
-  // Notice this is an array of post IDs referring to posts.
   posts: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Post',
     },
   ],
-  followers: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-    },
-  ],
-  following: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-    },
-  ],
-  createdAt: {
-    type: Date,
-    default: new Date(),
-  },
+
+  // These features will be added later.
+
+  // email: {
+  //   type: String,
+  //   required: [true, 'Please enter Email address'],
+  // },
+  // name: {
+  //   type: String,
+  //   default: '',
+  // },
+  // profilePicture: {
+  //   type: String,
+  //   default:
+  //     'https://images.unsplash.com/photo-1551373884-8a0750074df7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80',
+  // },
+  // bio: {
+  //   type: String,
+  //   default: '',
+  // },
+  // // Notice this is an array of post IDs referring to posts.
+
+  // followers: [
+  //   {
+  //     type: mongoose.Schema.Types.ObjectId,
+  //     ref: 'User',
+  //   },
+  // ],
+  // following: [
+  //   {
+  //     type: mongoose.Schema.Types.ObjectId,
+  //     ref: 'User',
+  //   },
+  // ],
+  // createdAt: {
+  //   type: Date,
+  //   default: new Date(),
+  // },
 });
 
 userSchema.plugin(uniqueValidator);

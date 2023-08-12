@@ -5,7 +5,7 @@ const bcrypt = require('bcrypt');
 const usersRouter = require('express').Router();
 
 const User = require('../models/user');
-const Post = require('../models/post');
+//const Post = require('../models/post');
 
 // Route for fetching all the users
 // Here we fetch all the saved 'user' objects from the database. The parameter of the find method are the search conditions. In this case, we want to retrieve all the users and hence the parameter is left empty {}.
@@ -14,7 +14,9 @@ usersRouter.get('/', async (req, res) => {
   // The populate method of Mongoose acts as a join query.
   // In this case, 'posts' is the parameter given to populate. It will find all the post objects referenced by the ids existing in the posts array of the user.
   // The populate method takes an additional parameter here - { image: 1, caption: 1 }. With this parameter we have stated we want only the image, and caption fields to be returned.
-  const users = await User.find({}).populate('posts', { image: 1, caption: 1 });
+  const users = await User.find({}).populate('posts', {
+    content: 1,
+  });
   if (!users.length) {
     return res.status(404).json({ message: 'No users exist' });
   }
@@ -23,7 +25,9 @@ usersRouter.get('/', async (req, res) => {
 
 // Route for fetching a single user with a given id.
 usersRouter.get('/:userId', async (req, res) => {
-  const user = await User.findById(req.params.userId);
+  const user = await User.findById(req.params.userId).populate('posts', {
+    content: 1,
+  });
   if (!user) {
     return res.status(404).json({ message: 'No user found' });
   }
@@ -33,7 +37,7 @@ usersRouter.get('/:userId', async (req, res) => {
 // Route for registering a new user.
 usersRouter.post('/', async (req, res) => {
   // The body property gets the data to be posted by making use of json parser added in app.js.
-  const { username, email, password } = req.body;
+  const { username, password } = req.body;
 
   if (password.length < 5) {
     res
@@ -59,7 +63,6 @@ usersRouter.post('/', async (req, res) => {
   // Now we create a new user object using the imported User model(the model can also be said to be a constructor function).
   const user = new User({
     username: username,
-    email: email,
     password: passwordHash,
   });
 
