@@ -2,7 +2,11 @@
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
-    extend: {},
+    extend: {
+      backgroundImage: {
+        pattern: "url('/src/assets/background-2.png')",
+      },
+    },
   },
   plugins: [require('daisyui')],
   // daisyUI config (optional - here are the default values)

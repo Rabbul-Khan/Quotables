@@ -41,13 +41,16 @@ postsRouter.post('/', userExtractor, async (req, res) => {
   const post = new Post({
     user: user.id,
     content: body.content,
+    title: body.title,
+    author: body.author,
   });
 
   const savedPost = await post.save();
-  console.log(savedPost);
 
   const dataToSend = {
+    title: body.title,
     content: body.content,
+    author: body.author,
     id: savedPost.id,
     username: user.username,
     date: savedPost.createdAt,
@@ -55,7 +58,6 @@ postsRouter.post('/', userExtractor, async (req, res) => {
 
   user.posts = user.posts.concat(savedPost._id);
   await user.save();
-  console.log('saved Post', savedPost);
   return res.status(201).send(dataToSend);
 });
 
@@ -78,12 +80,10 @@ postsRouter.delete('/:postId', userExtractor, async (req, res) => {
   if (post.user.toString() !== req.userId.toString()) {
     return res
       .status(403)
-      .json({ message: 'User is not creator of this post' });
+      .json({ message: 'You are not the creator of this post' });
   }
 
-  // NEED TO TEST THIS FUNCTIONALITY WORKS OR NOT. COULD HAVE BUGs.
   const user = await User.findById(post.user.toString());
-  console.log(user.posts);
   user.posts = user.posts.filter((post) => {
     return post.toString() !== req.params.postId;
   });

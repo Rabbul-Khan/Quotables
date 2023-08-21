@@ -8,12 +8,12 @@ const userSchema = new mongoose.Schema({
   // We can add validation rules here. We can also use Mongoose custom validator to create new validations.
   username: {
     type: String,
-    minLength: 3,
     required: true,
     unique: true,
   },
   password: {
     type: String,
+    required: true,
   },
   posts: [
     {

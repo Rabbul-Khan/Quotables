@@ -7,7 +7,7 @@ const LoginPage = ({ setUser, setSignup }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   return (
-    <div className="py-22 flex h-screen w-full flex-col items-center justify-center bg-gray-300 md:flex-row md:gap-12">
+    <div className="py-22 flex h-screen w-full flex-col items-center justify-center bg-gray-200 md:flex-row md:gap-12">
       <div className=" invisible w-0 md:visible md:flex md:w-full md:justify-end">
         <img src={girlLaptopSky} className=" w-4/5 max-w-sm" />
       </div>
@@ -28,7 +28,7 @@ const LoginPage = ({ setUser, setSignup }) => {
           setUser={setUser}
         />
 
-        <p className="mb-14 mt-4 flex items-center justify-center md:mb-0 md:ml-5 md:justify-start">
+        <p className="mb-4 mt-4 flex items-center justify-center md:ml-5 md:justify-start">
           Don't have an account?
           <a
             href="#"
@@ -39,6 +39,12 @@ const LoginPage = ({ setUser, setSignup }) => {
           >
             Sign up
           </a>
+        </p>
+
+        <p className="mx-auto mb-14 w-3/5 min-w-max max-w-xs rounded bg-slate-300 px-7 py-3 text-center md:m-0 md:mb-0 md:w-full">
+          For guest login <br></br>
+          Username: guest <br></br>
+          Password: abc123@
         </p>
         <img src={girlLaptop} className="m-auto w-4/5 max-w-xs md:hidden" />
       </div>

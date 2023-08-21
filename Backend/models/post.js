@@ -6,14 +6,26 @@ const postSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
   },
+  title: {
+    type: String,
+    maxLength: 25,
+    required: true,
+  },
+  author: {
+    type: String,
+    maxLength: 30,
+    required: true,
+  },
   content: {
     type: String,
-    maxLength: 1000,
+    maxLength: 170,
     required: true,
   },
   createdAt: {
     type: String,
-    default: new Date().toLocaleString(undefined, { timeZone: 'Asia/Dhaka' }),
+    default: new Date()
+      .toLocaleString(undefined, { timeZone: 'Asia/Dhaka' })
+      .split(',')[0],
   },
 
   // These features will be added later.

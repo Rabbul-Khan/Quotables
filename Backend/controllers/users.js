@@ -39,10 +39,16 @@ usersRouter.post('/', async (req, res) => {
   // The body property gets the data to be posted by making use of json parser added in app.js.
   const { username, password } = req.body;
 
-  if (password.length < 5) {
+  if (username.length < 4) {
     res
       .status(403)
-      .json({ error: 'Password should be longer than 5 characters' });
+      .json({ error: 'Username should be longer than 3 characters' });
+  }
+
+  if (password.length < 7) {
+    res
+      .status(403)
+      .json({ error: 'Password should be longer than 6 characters' });
   }
 
   if (!/\d/.test(password)) {

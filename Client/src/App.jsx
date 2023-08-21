@@ -1,31 +1,40 @@
 import { useEffect, useState } from 'react';
+
 import postService from './services/postService';
+
 import LoginPage from './components/LoginPage';
 import Header from './components/Header';
-import AddPostForm from './components/AddPostForm';
 import Post from './components/Post';
 import SignupPage from './components/SignupPage';
 
 function App() {
   const [user, setUser] = useState(null);
   const [posts, setPosts] = useState([]);
-  const [content, setContent] = useState('');
   const [signup, setSignup] = useState(false);
+
+  const [newPost, setNewPost] = useState({
+    title: '',
+    author: '',
+    content: '',
+  });
 
   useEffect(() => {
     postService.getAll().then((posts) => {
-      const initialPosts = posts.map((post) => {
-        console.log(post);
-        return {
-          username: post.user.username,
-          content: post.content,
-          id: post.id,
-          createdAt: post.createdAt,
-        };
-      });
-      setPosts(initialPosts);
+      setPosts(
+        posts.map((post) => {
+          return {
+            title: post.title,
+            author: post.author,
+            content: post.content,
+            createdAt: post.createdAt,
+            id: post.id,
+            username: post.user.username,
+          };
+        })
+      );
     });
-  }, []);
+    // Adding posts.length dependency allows for the  createdAt date not rendering bug to be resolved. The bug - When a new post is made, the createdAt date does not render until the page is refreshed.
+  }, [posts.length]);
 
   // This checks the local storage to see if any user is already logged in. If a token exists in local storage, we first check whether the token is expired or not.
   useEffect(() => {
@@ -36,7 +45,6 @@ function App() {
     if (timeLoggedIn) {
       const timeNow = new Date();
       const diffTime = Math.abs(timeLoggedIn - timeNow);
-      console.log(diffTime);
       // If difference between stored time and current time exceeds one hour, remove the token.
       if (diffTime > 3600000) {
         window.localStorage.removeItem('loggedAppUser');
@@ -54,39 +62,36 @@ function App() {
   }, []);
 
   if (user === null) {
-    if (signup) {
-      return <SignupPage setUser={setUser} setSignup={setSignup} />;
-    } else {
-      return <LoginPage setUser={setUser} setSignup={setSignup} />;
-    }
+    return signup ? (
+      <SignupPage setUser={setUser} setSignup={setSignup} />
+    ) : (
+      <LoginPage setUser={setUser} setSignup={setSignup} />
+    );
   }
 
   if (user !== null) {
     return (
-      <div className="mx-auto max-w-xs bg-base-100">
+      <div className="h-screen bg-indigo-50 bg-pattern bg-repeat">
         <Header
-          content={content}
-          setContent={setContent}
           posts={posts}
           setPosts={setPosts}
+          newPost={newPost}
+          setNewPost={setNewPost}
           setUser={setUser}
         />
-        <AddPostForm
-          content={content}
-          setContent={setContent}
-          posts={posts}
-          setPosts={setPosts}
-        />
+
         {posts.map((post) => {
           return (
             <Post
-              username={post.username}
+              title={post.title}
+              author={post.author}
               content={post.content}
-              posts={posts}
-              setPosts={setPosts}
+              createdAt={post.createdAt}
               key={post.id}
               id={post.id}
-              createdAt={post.createdAt}
+              username={post.username}
+              posts={posts}
+              setPosts={setPosts}
             />
           );
         })}

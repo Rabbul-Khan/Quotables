@@ -2,16 +2,17 @@ import signupService from '../services/signupService';
 import postService from '../services/postService';
 import loginService from '../services/loginService';
 
-const SignupForm = ({
-  setUsername,
-  setPassword,
-  setUser,
-  username,
-  password,
-  setSignup,
-}) => {
-  const handleSignup = async (event) => {
-    event.preventDefault();
+import { useForm } from 'react-hook-form';
+
+const SignupForm = ({ setUsername, setPassword, setUser, setSignup }) => {
+  const form = useForm();
+  const { register, control, handleSubmit, formState } = form;
+  const { errors } = formState;
+
+  const handleSignup = async (data) => {
+    const username = data.username;
+    const password = data.password;
+
     try {
       await signupService.signup({
         username,
@@ -30,30 +31,42 @@ const SignupForm = ({
       setPassword('');
       setSignup(false);
     } catch (exception) {
+      alert(exception.response.data.error);
       return exception;
     }
   };
 
   return (
     <form
-      onSubmit={handleSignup}
-      className="m-auto flex w-60 flex-col items-center justify-center"
+      onSubmit={handleSubmit(handleSignup)}
+      className="m-auto flex w-3/5 min-w-max max-w-xs flex-col items-center justify-center md:m-0 md:w-full"
+      noValidate
     >
-      <input
-        value={username}
-        onChange={({ target }) => setUsername(target.value)}
-        placeholder="Phone, email, or username"
-        type="text"
-        className="input mb-2 w-full max-w-xs bg-gray-100 "
-      />
-      <input
-        value={password}
-        onChange={({ target }) => setPassword(target.value)}
-        placeholder="Password"
-        type="password"
-        className="input mb-2 w-full max-w-xs bg-gray-100 "
-      />
-      <button className="btn-primary btn-block btn mb-3">Signup</button>
+      <div className="w-full pb-4">
+        <input
+          type="text"
+          placeholder="Email, or username"
+          className="input mb-3 w-full bg-gray-100 tracking-wide drop-shadow focus:bg-indigo-50 focus:outline-indigo-400"
+          {...register('username', {
+            required: { value: true, message: 'Username is required' },
+          })}
+        />
+        <p className=" text-red-500">{errors.username?.message}</p>
+      </div>
+      <div className="w-full pb-4">
+        <input
+          type="password"
+          placeholder="Password"
+          className="input mb-3 w-full bg-gray-100 tracking-wide drop-shadow focus:bg-indigo-50 focus:outline-indigo-400"
+          {...register('password', {
+            required: { value: true, message: 'Password is required' },
+          })}
+        />
+        <p className=" text-red-500">{errors.password?.message}</p>
+      </div>
+      <button className="btn-primary btn-block btn font-bold tracking-widest drop-shadow-md hover:drop-shadow-xl">
+        Signup
+      </button>
     </form>
   );
 };
