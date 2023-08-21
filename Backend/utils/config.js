@@ -3,7 +3,7 @@
 // The dotenv library allows for environment variables to be defined. Make sure to gitignore the env file. The env variables is used by using the expression:
 require('dotenv').config();
 
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 3001;
 
 const MONGODB_URI =
   process.env.NODE_ENV === 'test'
