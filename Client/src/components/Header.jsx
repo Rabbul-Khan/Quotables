@@ -2,7 +2,15 @@ import { useState } from 'react';
 import { FaPlusCircle, FaSignOutAlt } from 'react-icons/fa';
 import AddPostForm from './AddPostForm';
 
-const Header = ({ posts, setPosts, setUser, newPost, setNewPost }) => {
+const Header = ({
+  posts,
+  setPosts,
+  setUser,
+  newPost,
+  setNewPost,
+  setNotification,
+  setNotificationText,
+}) => {
   const [open, setOpen] = useState(false);
   return (
     <div className="navbar m-auto max-w-3xl pt-7">
@@ -30,6 +38,12 @@ const Header = ({ posts, setPosts, setUser, newPost, setNewPost }) => {
             window.localStorage.removeItem('loggedAppUser');
             window.localStorage.removeItem('timeLoggedIn');
             setUser(null);
+            setNotification(true);
+            setNotificationText('Signed out');
+            setTimeout(() => {
+              setNotification(false);
+              setNotificationText('');
+            }, 2000);
           }}
         >
           <FaSignOutAlt className="text-lg md:text-xl" />
@@ -43,6 +57,8 @@ const Header = ({ posts, setPosts, setUser, newPost, setNewPost }) => {
         setOpen={setOpen}
         newPost={newPost}
         setNewPost={setNewPost}
+        setNotification={setNotification}
+        setNotificationText={setNotificationText}
       />
     </div>
   );
@@ -63,7 +79,7 @@ export default Header;
           </div>
           <div className="drawer-side">
             <label htmlFor="my-drawer" className="drawer-overlay"></label>
-            <ul className="menu h-full w-80 bg-base-200 p-4 text-base-content">
+            <ul className="h-full p-4 menu w-80 bg-base-200 text-base-content">
               <li>
                 <button
                   className="btn-ghost btn"

@@ -39,27 +39,30 @@ usersRouter.post('/', async (req, res) => {
   // The body property gets the data to be posted by making use of json parser added in app.js.
   const { username, password } = req.body;
 
-  if (username.length < 4) {
+  if (username.length < 3) {
     res
       .status(403)
-      .json({ error: 'Username should be longer than 3 characters' });
+      .json({ error: 'Username should be at least 3 characters long' });
   }
 
-  if (password.length < 7) {
+  if (password.length < 6) {
     res
       .status(403)
-      .json({ error: 'Password should be longer than 6 characters' });
+      .json({ error: 'Password should be at least 6 characters long' });
   }
 
   if (!/\d/.test(password)) {
-    res.status(403).json({ error: 'Password should have atleast one number' });
+    res.status(403).json({
+      error: 'Password should have at least one numerical digit (0 ~ 9)',
+    });
   }
 
   const specialChars = /[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
   if (!specialChars.test(password)) {
-    res
-      .status(403)
-      .json({ error: 'Password should have atleast one special character' });
+    res.status(403).json({
+      error:
+        'Password should have at least one special character (!,@,#,$,%...)',
+    });
   }
 
   // We do not want to save the password directly to the database. Hence we use brypt library to create a hash of the password which is then stored to the dB

@@ -3,11 +3,15 @@ import postService from '../services/postService';
 import loginService from '../services/loginService';
 
 import { useForm } from 'react-hook-form';
+import { useState } from 'react';
 
 const SignupForm = ({ setUsername, setPassword, setUser, setSignup }) => {
   const form = useForm();
   const { register, control, handleSubmit, formState } = form;
   const { errors } = formState;
+
+  const [usernameValidationError, setUsernameValidationError] = useState('');
+  const [passwordValidationError, setPasswordValidationError] = useState('');
 
   const handleSignup = async (data) => {
     const username = data.username;
@@ -31,8 +35,19 @@ const SignupForm = ({ setUsername, setPassword, setUser, setSignup }) => {
       setPassword('');
       setSignup(false);
     } catch (exception) {
-      alert(exception.response.data.error);
-      return exception;
+      if (exception.response.data.error.includes('Username')) {
+        console.log(exception.response.data.error);
+        setUsernameValidationError(exception.response.data.error);
+        setTimeout(() => {
+          setUsernameValidationError('');
+        }, 2000);
+      } else if (exception.response.data.error.includes('Password')) {
+        console.log(exception.response.data.error);
+        setPasswordValidationError(exception.response.data.error);
+        setTimeout(() => {
+          setPasswordValidationError('');
+        }, 2000);
+      }
     }
   };
 
@@ -49,9 +64,15 @@ const SignupForm = ({ setUsername, setPassword, setUser, setSignup }) => {
           className="input mb-3 w-full bg-gray-100 tracking-wide drop-shadow focus:bg-indigo-50 focus:outline-indigo-400"
           {...register('username', {
             required: { value: true, message: 'Username is required' },
+            minLength: {
+              value: 3,
+              message: 'Username should be at least 3 characters long',
+            },
           })}
         />
-        <p className=" text-red-500">{errors.username?.message}</p>
+        <p className="text-red-500 ">
+          {errors.username?.message || usernameValidationError}
+        </p>
       </div>
       <div className="w-full pb-4">
         <input
@@ -60,9 +81,15 @@ const SignupForm = ({ setUsername, setPassword, setUser, setSignup }) => {
           className="input mb-3 w-full bg-gray-100 tracking-wide drop-shadow focus:bg-indigo-50 focus:outline-indigo-400"
           {...register('password', {
             required: { value: true, message: 'Password is required' },
+            minLength: {
+              value: 6,
+              message: 'Password should be at least 6 characters long',
+            },
           })}
         />
-        <p className=" text-red-500">{errors.password?.message}</p>
+        <p className="w-80 text-red-500 ">
+          {errors.password?.message || passwordValidationError}
+        </p>
       </div>
       <button className="btn-primary btn-block btn font-bold tracking-widest drop-shadow-md hover:drop-shadow-xl">
         Signup

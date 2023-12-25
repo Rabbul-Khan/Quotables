@@ -3,7 +3,12 @@ import girlLaptop from '../assets/Girl_laptop.svg';
 import girlLaptopSky from '../assets/Girl_laptop_sky.svg';
 import LoginForm from './LoginForm';
 
-const LoginPage = ({ setUser, setSignup }) => {
+const LoginPage = ({
+  setUser,
+  setSignup,
+  setNotification,
+  setNotificationText,
+}) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   return (
@@ -26,6 +31,8 @@ const LoginPage = ({ setUser, setSignup }) => {
           setUsername={setUsername}
           setPassword={setPassword}
           setUser={setUser}
+          setNotification={setNotification}
+          setNotificationText={setNotificationText}
         />
 
         <p className="mb-4 mt-4 flex items-center justify-center md:ml-5 md:justify-start">

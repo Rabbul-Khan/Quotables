@@ -18,6 +18,9 @@ function App() {
     content: '',
   });
 
+  const [notification, setNotification] = useState(false);
+  const [notificationText, setNotificationText] = useState('');
+
   useEffect(() => {
     postService.getAll().then((posts) => {
       setPosts(
@@ -63,9 +66,37 @@ function App() {
 
   if (user === null) {
     return signup ? (
-      <SignupPage setUser={setUser} setSignup={setSignup} />
+      <>
+        {notification && (
+          <div className="toast-end toast">
+            <div className="alert bg-violet-600 text-white">
+              <span>{notificationText}</span>
+            </div>
+          </div>
+        )}
+        <SignupPage
+          setUser={setUser}
+          setSignup={setSignup}
+          setNotification={setNotification}
+          setNotificationText={setNotificationText}
+        />
+      </>
     ) : (
-      <LoginPage setUser={setUser} setSignup={setSignup} />
+      <>
+        {notification && (
+          <div className="toast-end toast">
+            <div className="alert bg-red-500 text-white">
+              <span>{notificationText}</span>
+            </div>
+          </div>
+        )}
+        <LoginPage
+          setUser={setUser}
+          setSignup={setSignup}
+          setNotification={setNotification}
+          setNotificationText={setNotificationText}
+        />
+      </>
     );
   }
 
@@ -78,7 +109,17 @@ function App() {
           newPost={newPost}
           setNewPost={setNewPost}
           setUser={setUser}
+          setNotification={setNotification}
+          setNotificationText={setNotificationText}
         />
+
+        {notification && (
+          <div className="toast-end toast">
+            <div className="alert bg-violet-600 text-white">
+              <span>{notificationText}</span>
+            </div>
+          </div>
+        )}
 
         {posts.map((post) => {
           return (
@@ -92,6 +133,8 @@ function App() {
               username={post.username}
               posts={posts}
               setPosts={setPosts}
+              setNotification={setNotification}
+              setNotificationText={setNotificationText}
             />
           );
         })}

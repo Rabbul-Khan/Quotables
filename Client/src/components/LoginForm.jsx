@@ -1,10 +1,11 @@
+import { useState } from 'react';
 import loginService from '../services/loginService';
 import postService from '../services/postService';
 
 import { useForm } from 'react-hook-form';
 //import { DevTool } from '@hookform/devtools';
 
-const LoginForm = ({ setUser }) => {
+const LoginForm = ({ setUser, setNotification, setNotificationText }) => {
   const form = useForm();
   const { register, control, handleSubmit, formState } = form;
   const { errors } = formState;
@@ -23,9 +24,20 @@ const LoginForm = ({ setUser }) => {
       window.localStorage.setItem('timeLoggedIn', new Date());
       setUser(user.data);
       postService.setToken(user.data.token);
+
+      setNotification(true);
+      setNotificationText(`Signed in as ${username}`);
+      setTimeout(() => {
+        setNotification(false);
+        setNotificationText('');
+      }, 2000);
     } catch (exception) {
-      alert(exception.response.data.message);
-      return exception;
+      setNotification(true);
+      setNotificationText(exception.response.data.message);
+      setTimeout(() => {
+        setNotification(false);
+        setNotificationText('');
+      }, 2000);
     }
   };
 
@@ -45,7 +57,7 @@ const LoginForm = ({ setUser }) => {
               required: { value: true, message: 'Username is required' },
             })}
           />
-          <p className=" text-red-500">{errors.username?.message}</p>
+          <p className="text-red-500 ">{errors.username?.message}</p>
         </div>
 
         <div className="w-full pb-4">
@@ -57,7 +69,7 @@ const LoginForm = ({ setUser }) => {
               required: { value: true, message: 'Password is required' },
             })}
           />
-          <p className=" text-red-500">{errors.password?.message}</p>
+          <p className="text-red-500 ">{errors.password?.message}</p>
         </div>
 
         <button className="btn-primary btn-block btn font-bold tracking-widest drop-shadow-md hover:drop-shadow-xl">

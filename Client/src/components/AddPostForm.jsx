@@ -3,7 +3,14 @@ import { useForm } from 'react-hook-form';
 
 import postService from '../services/postService';
 
-const AddPostForm = ({ posts, setPosts, open, setOpen }) => {
+const AddPostForm = ({
+  posts,
+  setPosts,
+  open,
+  setOpen,
+  setNotification,
+  setNotificationText,
+}) => {
   const form = useForm({
     defaultValues: {
       newPost: {
@@ -28,6 +35,12 @@ const AddPostForm = ({ posts, setPosts, open, setOpen }) => {
     const response = await postService.addPost(data.newPost);
     setOpen(false);
     setPosts(posts.concat(response));
+    setNotification(true);
+    setNotificationText('Quote posted successfully');
+    setTimeout(() => {
+      setNotification(false);
+      setNotificationText('');
+    }, 2000);
   };
 
   useEffect(() => {
@@ -62,7 +75,7 @@ const AddPostForm = ({ posts, setPosts, open, setOpen }) => {
               required: { value: true, message: 'Title is required' },
             })}
           />
-          <p className=" text-red-600">{errors.newPost?.title?.message}</p>
+          <p className="text-red-600 ">{errors.newPost?.title?.message}</p>
         </div>
 
         <div className="w-full pb-4">
@@ -75,7 +88,7 @@ const AddPostForm = ({ posts, setPosts, open, setOpen }) => {
               required: { value: true, message: 'Author is required' },
             })}
           />
-          <p className=" text-red-600">{errors.newPost?.author?.message}</p>
+          <p className="text-red-600 ">{errors.newPost?.author?.message}</p>
         </div>
 
         <div className="w-full pb-4">
@@ -89,7 +102,7 @@ const AddPostForm = ({ posts, setPosts, open, setOpen }) => {
               required: { value: true, message: 'Content is required' },
             })}
           ></textarea>
-          <p className=" text-red-600">{errors.newPost?.content?.message}</p>
+          <p className="text-red-600 ">{errors.newPost?.content?.message}</p>
         </div>
 
         <div className="modal-action mt-2 flex w-full justify-end gap-2">
@@ -111,7 +124,7 @@ const AddPostForm = ({ posts, setPosts, open, setOpen }) => {
           </button>
           <button
             type="submit"
-            className=" btn-primary btn-sm btn font-bold tracking-widest drop-shadow-md md:btn-md hover:drop-shadow-xl"
+            className="btn-primary btn-sm btn font-bold tracking-widest drop-shadow-md md:btn-md hover:drop-shadow-xl"
           >
             Submit
           </button>

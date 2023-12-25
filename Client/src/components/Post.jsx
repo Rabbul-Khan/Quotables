@@ -1,5 +1,6 @@
 import { FaUser, FaHeart, FaTrash, FaRegHeart, FaPenNib } from 'react-icons/fa';
 import postService from '../services/postService';
+import { useState } from 'react';
 
 const Post = ({
   username,
@@ -10,6 +11,8 @@ const Post = ({
   setPosts,
   title,
   author,
+  setNotification,
+  setNotificationText,
 }) => {
   const handleDeletePost = async () => {
     try {
@@ -19,8 +22,19 @@ const Post = ({
           return post.id !== id;
         })
       );
+      setNotification(true);
+      setNotificationText('Quote deleted successfully');
+      setTimeout(() => {
+        setNotification(false);
+        setNotificationText('');
+      }, 2000);
     } catch (exception) {
-      alert(exception.response.data.message);
+      setNotification(true);
+      setNotificationText(exception.response.data.message);
+      setTimeout(() => {
+        setNotification(false);
+        setNotificationText('');
+      }, 2000);
     }
 
     // const response = await postService.deletePost(id);
@@ -46,11 +60,11 @@ const Post = ({
 
       <div className="mb-2 flex items-center justify-between text-gray-600">
         <div className="flex items-center gap-1">
-          <FaPenNib className=" text-xs" />
+          <FaPenNib className="text-xs " />
           <div className="font-sans italic tracking-wide">{author}</div>
         </div>
         <FaTrash
-          className=" cursor-pointer text-xs text-gray-400 hover:text-gray-600"
+          className="cursor-pointer text-xs text-gray-400 hover:text-gray-600"
           onClick={async () => {
             await handleDeletePost();
           }}
@@ -61,10 +75,10 @@ const Post = ({
         `` {content} ``
       </blockquote>
 
-      <div className=" mb-1 flex items-center justify-between text-xs text-gray-600">
+      <div className="mb-1 flex items-center justify-between text-xs text-gray-600 ">
         <div className="flex items-center gap-2">
           <FaUser className="text-xs" />
-          <div className=" text-sm">{username}</div>
+          <div className="text-sm ">{username}</div>
         </div>
         <div className="flex gap-1">
           <div className="text-gray-500">{createdAt}</div>
@@ -82,11 +96,11 @@ const Post = ({
       <div className="flex items-center justify-between pb-1">
         <div className="flex items-center">
           <BsHeart className="cursor-pointer" />
-          <div className=" cursor-pointer pl-2 ">39 likes</div>
+          <div className="pl-2 cursor-pointer ">39 likes</div>
         </div>
         <BsBookmark className="cursor-pointer hover:text-gray-600" />
         <MdDelete
-          className=" cursor-pointer text-xl hover:text-gray-600"
+          className="text-xl cursor-pointer hover:text-gray-600"
           onClick={async () => {
             await handleDeletePost();
           }}
