@@ -18,9 +18,7 @@ beforeEach(async () => {
 
   const userOne = {
     username: 'john_doe',
-    email: 'john@example.com',
     password: 'password123@',
-    name: 'John Doe',
   };
   const passwordHashOne = await bcrypt.hash(userOne.password, 10);
   const userOneObject = new User({ ...userOne, password: passwordHashOne });
@@ -28,9 +26,7 @@ beforeEach(async () => {
 
   const userTwo = {
     username: 'jane_smith',
-    email: 'jane@example.com',
     password: 'password456@',
-    name: 'Jane Smith',
   };
   const passwordHashTwo = await bcrypt.hash(userTwo.password, 10);
   const userTwoObject = new User({ ...userTwo, password: passwordHashTwo });
@@ -89,7 +85,6 @@ test('a valid user can be added', async () => {
 
   const newUser = {
     username: 'dGlover',
-    email: 'danny@gmail.com',
     password: 'danny123@',
   };
 
@@ -106,12 +101,11 @@ test('a user without username cannot be added - throws user validation error', a
   const usersAtStart = await helper.usersInDb();
 
   const newUser = {
-    email: 'danny@gmail.com',
     password: 'danny123@',
   };
 
   const response = await api.post('/api/users/').send(newUser);
-  expect(response.body.error).toContain('User validation failed');
+  expect(response.body.error).toContain('Username is required');
   const usersAtEnd = await helper.usersInDb();
   expect(usersAtEnd).toHaveLength(usersAtStart.length);
   const usernames = usersAtEnd.map((user) => user.username);
@@ -119,16 +113,15 @@ test('a user without username cannot be added - throws user validation error', a
 });
 
 // If no email provided when registering - user validation error
-test('a user without email cannot be added - throws user validation error', async () => {
+test('a user without password cannot be added - throws user validation error', async () => {
   const usersAtStart = await helper.usersInDb();
 
   const newUser = {
     username: 'dannyGlover',
-    password: 'danny123@',
   };
 
   const response = await api.post('/api/users/').send(newUser);
-  expect(response.body.error).toContain('User validation failed');
+  expect(response.body.error).toContain('Password is required');
   const usersAtEnd = await helper.usersInDb();
   expect(usersAtEnd).toHaveLength(usersAtStart.length);
   const usernames = usersAtEnd.map((user) => user.username);

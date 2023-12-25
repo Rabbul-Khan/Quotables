@@ -39,6 +39,14 @@ usersRouter.post('/', async (req, res) => {
   // The body property gets the data to be posted by making use of json parser added in app.js.
   const { username, password } = req.body;
 
+  if (!username) {
+    res.status(403).json({ error: 'Username is required' });
+  }
+
+  if (!password) {
+    res.status(403).json({ error: 'Password is required' });
+  }
+
   if (username.length < 3) {
     res
       .status(403)

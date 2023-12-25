@@ -5,9 +5,7 @@ const Post = require('../models/post');
 const nonExistingId = async () => {
   const user = new User({
     username: 'will remove',
-    email: 'will remove',
     password: 'will remove',
-    name: 'will remove',
   });
   await user.save();
   await user.deleteOne();

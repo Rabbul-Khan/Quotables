@@ -20,9 +20,7 @@ beforeEach(async () => {
 
   const userOne = {
     username: 'john_doe',
-    email: 'john@example.com',
     password: 'pass123@',
-    name: 'John Doe',
   };
   const passwordHashOne = await bcrypt.hash(userOne.password, 10);
   const userOneObject = new User({ ...userOne, password: passwordHashOne });
@@ -41,8 +39,9 @@ beforeEach(async () => {
 
   const postOne = new Post({
     user: user[0]._id,
-    image: 'www.someImage.com',
-    caption: 'Beautiful picture',
+    title: 'Remorse',
+    author: 'Mark Twain',
+    content: 'Remorse is a strong emotion',
   });
   await postOne.save();
   user[0].posts = user[0].posts.concat(postOne._id);
@@ -74,7 +73,7 @@ test('a specific post is within the returned posts', async () => {
   const response = await api.get(`/api/posts/${postToRetrieve.id}`).expect(200);
 
   //const postCaptions = posts.map((post) => post.caption);
-  expect(postToRetrieve.caption).toContain(response.body.caption);
+  expect(postToRetrieve.title).toContain(response.body.title);
 });
 
 test('a new post can be posted', async () => {
@@ -84,8 +83,9 @@ test('a new post can be posted', async () => {
 
   const newPost = {
     userId: user[0]._id,
-    image: 'www.anotherImage.com',
-    caption: 'New picture',
+    title: 'Beauty',
+    author: 'Shakespeare',
+    content: 'Beauty is only skin deep',
   };
 
   await api
@@ -96,8 +96,8 @@ test('a new post can be posted', async () => {
 
   const postsAtEnd = await helper.postsInDb();
   expect(postsAtEnd).toHaveLength(postsAtStart.length + 1);
-  const captions = postsAtEnd.map((post) => post.caption);
-  expect(captions[1]).toContain(newPost.caption);
+  const titles = postsAtEnd.map((post) => post.title);
+  expect(titles[1]).toContain(newPost.title);
 });
 
 // Deleteing a specific post.
